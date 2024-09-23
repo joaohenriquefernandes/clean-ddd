@@ -19,8 +19,6 @@ describe('Answer Question Use Case', () => {
       content: 'Nova resposta',
     })
 
-    console.log(answer)
-
     expect(answer.id).toBeTruthy()
     expect(answer.id).toEqual(expect.any(UniqueEntityId))
     expect(answersRepository.items[0].id).toEqual(answer.id)
