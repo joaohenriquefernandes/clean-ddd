@@ -1,15 +1,20 @@
+import { Either, left, right } from '@/core/either'
 import { QuestionComment } from '../../enterprise/entities/question-comment'
 import { IQuestionCommentRepository } from '../repositories/question-comment-repository'
 import { IQuestionRepository } from '../repositories/questions-repository'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
 
 interface IFetchQuestionCommentUseCaseRequest {
   questionId: string
   page: number
 }
 
-interface IFetchQuestionCommentUseCaseResponse {
-  questionComments: QuestionComment[]
-}
+type FetchQuestionCommentUseCaseResponse = Either<
+  ResourceNotFoundError,
+  {
+    questionComments: QuestionComment[]
+  }
+>
 
 export class FetchQuestionCommentUseCase {
   constructor(
@@ -20,11 +25,11 @@ export class FetchQuestionCommentUseCase {
   async execute({
     questionId,
     page,
-  }: IFetchQuestionCommentUseCaseRequest): Promise<IFetchQuestionCommentUseCaseResponse> {
+  }: IFetchQuestionCommentUseCaseRequest): Promise<FetchQuestionCommentUseCaseResponse> {
     const question = await this.questionsRepository.findById(questionId)
 
     if (!question) {
-      throw new Error('Question not found.')
+      return left(new ResourceNotFoundError())
     }
 
     const questionComments =
@@ -32,6 +37,6 @@ export class FetchQuestionCommentUseCase {
         page,
       })
 
-    return { questionComments }
+    return right({ questionComments })
   }
 }
