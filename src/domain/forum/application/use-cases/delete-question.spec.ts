@@ -3,6 +3,7 @@ import { makeQuestion } from 'test/factories/make-question'
 import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions.repository'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { DeleteQuestionUseCase } from './delete-question'
+import { NotAllowedError } from './errors/not-allowed-error'
 
 describe('Delete Question Use Case', () => {
   let questionsRepository: InMemoryQuestionsRepository
@@ -36,11 +37,12 @@ describe('Delete Question Use Case', () => {
 
     await questionsRepository.create(question)
 
-    expect(() =>
-      deleteQuestionUseCase.execute({
-        questionId: question.id.value,
-        authorId: 'author-2',
-      }),
-    ).rejects.toBeInstanceOf(Error)
+    const result = await deleteQuestionUseCase.execute({
+      questionId: question.id.value,
+      authorId: 'author-2',
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(NotAllowedError)
   })
 })

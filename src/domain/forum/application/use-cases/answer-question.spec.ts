@@ -13,14 +13,14 @@ describe('Answer Question Use Case', () => {
   })
 
   it('shouls be able to answer a question', async () => {
-    const { answer } = await answerQuestionUseCase.execute({
+    const result = await answerQuestionUseCase.execute({
       authorId: new UniqueEntityId(),
       questionId: new UniqueEntityId(),
       content: 'Nova resposta',
     })
 
-    expect(answer.id).toBeTruthy()
-    expect(answer.id).toEqual(expect.any(UniqueEntityId))
-    expect(answersRepository.items[0].id).toEqual(answer.id)
+    expect(result.value?.answer.id).toBeTruthy()
+    expect(result.value?.answer.id).toEqual(expect.any(UniqueEntityId))
+    expect(answersRepository.items[0].id).toEqual(result.value?.answer.id)
   })
 })

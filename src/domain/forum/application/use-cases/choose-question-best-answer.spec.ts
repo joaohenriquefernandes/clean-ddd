@@ -3,8 +3,9 @@ import { makeAnswer } from 'test/factories/make-answer'
 import { makeQuestion } from 'test/factories/make-question'
 import { InMemoryAnswerRepository } from 'test/repositories/in-memory-answer-repository'
 import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions.repository'
-import { beforeEach, describe, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { ChooseQuestionBestAnswerUseCase } from './choose-question-best-answer'
+import { NotAllowedError } from './errors/not-allowed-error'
 
 describe('Choose Question Best Answer Use Case', () => {
   let questionsRepository: InMemoryQuestionsRepository
@@ -44,11 +45,12 @@ describe('Choose Question Best Answer Use Case', () => {
     await questionsRepository.create(question)
     await answersRepository.create(answer)
 
-    expect(() =>
-      chooseQuestionBestAnswerUseCase.execute({
-        answerId: answer.id.value,
-        authorId: 'author-2',
-      }),
-    ).rejects.toBeInstanceOf(Error)
+    const result = await chooseQuestionBestAnswerUseCase.execute({
+      answerId: answer.id.value,
+      authorId: 'author-2',
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(NotAllowedError)
   })
 })

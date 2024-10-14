@@ -20,11 +20,11 @@ describe('get Question By Slug Use Case', () => {
 
     await questionRepository.create(newQuestion)
 
-    const { question } = await getQuestionBySlugUseCase.execute({
+    const result = await getQuestionBySlugUseCase.execute({
       slug: 'example-question',
     })
 
-    expect(question.id).toBeTruthy()
-    expect(questionRepository.items[0].slug.value).toEqual(question.slug.value)
+    expect(result.isRight()).toBeTruthy()
+    expect(result.value?.question.id.value).toEqual(newQuestion.id.value)
   })
 })

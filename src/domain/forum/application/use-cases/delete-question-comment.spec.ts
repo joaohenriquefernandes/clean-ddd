@@ -3,6 +3,7 @@ import { makeQuestionComment } from 'test/factories/make-question-comment'
 import { InMemoryQuestionCommentRepository } from 'test/repositories/in-memory-question-comment-repository'
 import { beforeEach, describe, it } from 'vitest'
 import { DeleteQuestionCommentUseCase } from './delete-question-comment'
+import { NotAllowedError } from './errors/not-allowed-error'
 
 describe('Delete Question Comment Use Case', () => {
   let questionCommentsRepository: InMemoryQuestionCommentRepository
@@ -35,11 +36,12 @@ describe('Delete Question Comment Use Case', () => {
 
     await questionCommentsRepository.create(questionComment)
 
-    expect(() =>
-      deleteQuestionCommentUseCase.execute({
-        authorId: 'author-2',
-        questionCommentId: questionComment.id.value,
-      }),
-    ).rejects.toBeInstanceOf(Error)
+    const result = await deleteQuestionCommentUseCase.execute({
+      authorId: 'author-2',
+      questionCommentId: questionComment.id.value,
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(NotAllowedError)
   })
 })

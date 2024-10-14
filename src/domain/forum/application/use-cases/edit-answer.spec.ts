@@ -3,6 +3,7 @@ import { makeAnswer } from 'test/factories/make-answer'
 import { InMemoryAnswerRepository } from 'test/repositories/in-memory-answer-repository'
 import { beforeEach, describe, it } from 'vitest'
 import { EditAnswerUseCase } from './edit-answer'
+import { NotAllowedError } from './errors/not-allowed-error'
 
 describe('Edit Answer Use Case', () => {
   let answersRepository: InMemoryAnswerRepository
@@ -40,12 +41,13 @@ describe('Edit Answer Use Case', () => {
 
     await answersRepository.create(answer)
 
-    expect(() =>
-      editAnswerUseCase.execute({
-        answerId: answer.id.value,
-        content: 'New Edit Content',
-        authorId: 'author-2',
-      }),
-    ).rejects.toBeInstanceOf(Error)
+    const result = await editAnswerUseCase.execute({
+      answerId: answer.id.value,
+      content: 'New Edit Content',
+      authorId: 'author-2',
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(NotAllowedError)
   })
 })
